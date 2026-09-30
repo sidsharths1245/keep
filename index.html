@@ -30,6 +30,10 @@
             --danger: #ff453a;
             --danger-bg: rgba(255, 69, 58, 0.12);
             --danger-hover: rgba(255, 69, 58, 0.25);
+            
+            /* Success Green */
+            --success: #2ecc71;
+            --success-bg: rgba(46, 204, 113, 0.12);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,7 +87,68 @@
             align-items: center; 
         }
         .sidebar-header h2 { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-        .sidebar-header-actions { display: flex; gap: 6px; }
+        .sidebar-header-actions { display: flex; gap: 6px; align-items: center; }
+
+        /* Custom Filter Dropdown */
+        .filter-dropdown {
+            position: absolute;
+            top: 100%; right: 0; margin-top: 8px; width: 140px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-highlight);
+            border-radius: 8px; padding: 6px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            display: none; flex-direction: column; gap: 2px;
+            z-index: 200;
+        }
+        .filter-dropdown.visible { display: flex; animation: flyIn 0.15s ease-out; }
+        .filter-option {
+            padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text-primary); transition: background 0.1s;
+        }
+        .filter-option:hover { background-color: var(--item-hover); }
+        .filter-option.active { color: var(--accent); font-weight: 500; background-color: var(--accent-bg); }
+
+        .sidebar-folder-btn {
+            width: calc(100% - 24px);
+            margin: 0 12px 8px;
+            padding: 9px 12px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font: inherit;
+            text-align: left;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .sidebar-folder-btn:hover {
+            background: var(--item-hover);
+            color: var(--text-primary);
+        }
+        .sidebar-folder-btn.active {
+            background: var(--accent-bg);
+            border-color: rgba(24, 119, 242, 0.3);
+            color: var(--accent);
+        }
+        .sidebar-folder-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-folder-icon svg { width: 17px; height: 17px; }
+        .sidebar-folder-label { flex: 1; font-size: 13px; font-weight: 500; }
+        .sidebar-folder-count {
+            min-width: 18px;
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
 
         .notes-list {
             list-style: none; overflow-y: auto; flex: 1; padding: 0 12px 12px 12px;
@@ -111,9 +176,14 @@
             background-color: var(--accent-bg);
             border-color: var(--accent);
         }
+        .notes-list li.trashed-note .note-item-title-text {
+            text-decoration: line-through;
+            opacity: 0.75;
+        }
 
         .note-item-info { flex: 1; min-width: 0; }
-        .note-item-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+        .note-item-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); }
+        .note-item-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
         .note-item-preview { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .note-item-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
@@ -125,10 +195,10 @@
             border-radius: 4px; 
             border: 1px solid var(--border-color);
         }
-        .notes-list li.active .tag-badge { 
-            border-color: rgba(24, 119, 242, 0.4); 
-            color: var(--accent); 
-            background: var(--accent-bg); 
+        /* Intentionally removed active override for tag-badge so it keeps its neutral color */
+
+        .exported-icon {
+            width: 16px; height: 16px; color: var(--success); flex-shrink: 0; margin-left: 6px;
         }
 
         /* Sticky Action Menu */
@@ -139,6 +209,18 @@
             background-color: var(--bg-sidebar);
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
+        }
+
+        /* Unexported Count Status Indicator */
+        .save-status {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            flex-shrink: 0;
+            transition: color 0.3s;
         }
 
         .auth-footer { 
@@ -362,6 +444,13 @@
             font-size: 13.5px; border: 1px solid var(--border-color); 
         }
 
+        /* Native paste / drag-and-drop feedback */
+        #note-content.drop-active {
+            outline: 2px dashed var(--accent);
+            outline-offset: -8px;
+            background: rgba(24, 119, 242, 0.04);
+        }
+
         .img-resize-container {
             position: relative;
             display: inline-block;
@@ -369,6 +458,9 @@
             vertical-align: middle;
             overflow: hidden;
             border-radius: 6px;
+        }
+        .img-resize-container {
+            max-width: 100%;
         }
         .img-resize-container img {
             display: block;
@@ -486,6 +578,42 @@
             cursor: pointer; font-size: 13px; transition: all 0.2s;
         }
         .modal-actions button.cancel:hover { background: var(--item-hover); color: var(--text-primary); }
+
+        /* Context Menu Styles */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-card);
+            border: 1px solid var(--border-highlight);
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            min-width: 160px;
+        }
+        .context-menu.visible {
+            display: flex;
+            animation: fadeIn 0.15s ease-out;
+        }
+        .context-menu .menu-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .context-menu .menu-item:hover {
+            background: var(--item-hover);
+        }
+        .context-menu .menu-item.danger {
+            color: var(--danger);
+        }
+        .context-menu .menu-item.danger:hover {
+            background: var(--danger-bg);
+        }
     </style>
 </head>
 <body>
@@ -494,12 +622,21 @@
             <div class="sidebar-header">
                 <h2>Notes</h2>
                 <div class="sidebar-header-actions">
-                    <button id="link-folder-btn" class="icon-btn" title="Link Folder for Live Edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                    </button>
-                    <button id="add-note-btn" class="icon-btn">
+                    <!-- Funnel Filter Button -->
+                    <div class="filter-dropdown-container" style="position: relative; display: flex;">
+                        <button id="filter-menu-btn" class="icon-btn" title="Filter Notes">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </button>
+                        <div id="filter-dropdown" class="filter-dropdown">
+                            <div class="filter-option active" data-filter="all">All Notes</div>
+                            <div class="filter-option" data-filter="exported">Exported</div>
+                            <div class="filter-option" data-filter="pending">Not Exported</div>
+                        </div>
+                    </div>
+                    
+                    <button id="add-note-btn" class="icon-btn" title="New Note">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -507,9 +644,23 @@
                     </button>
                 </div>
             </div>
-            
+
             <ul id="notes-list" class="notes-list"></ul>
             <div id="selection-overlay"></div>
+
+            <button id="trash-folder-btn" class="sidebar-folder-btn" type="button" title="Open Trash">
+                <span class="sidebar-folder-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"></path>
+                        <path d="M19 6l-1 15H6L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                    </svg>
+                </span>
+                <span class="sidebar-folder-label">Trash</span>
+                <span id="trash-count" class="sidebar-folder-count"></span>
+            </button>
 
             <div class="sidebar-bottom-actions">
                 <button id="shortcuts-modal-btn" class="icon-btn" title="Edit Keyboard Shortcuts">
@@ -526,11 +677,12 @@
                         <line x1="7" y1="16" x2="17" y2="16"></line>
                     </svg>
                 </button>
+                <!-- EXPORT BUTTON -->
                 <button id="export-single-btn" class="icon-btn" title="Export Selected Notes">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 5 17 10"></polyline>
-                        <line x1="12" y1="5" x2="12" y2="17"></line>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
                 </button>
                 <button id="delete-note-btn" class="icon-btn" title="Delete Selected Notes">
@@ -540,6 +692,8 @@
                     </svg>
                 </button>
             </div>
+            
+            <div id="unexported-count" class="save-status">0 unexported notes</div>
 
             <div class="auth-footer">
                 <button id="login-btn" class="auth-btn">Login to Sync</button>
@@ -679,51 +833,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ---------- IndexedDB Folder Memory ----------
-        const dbName = 'NotepadDB';
-        const storeName = 'handles';
-
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName, 1);
-                request.onupgradeneeded = (e) => e.target.result.createObjectStore(storeName);
-                request.onsuccess = (e) => resolve(e.target.result);
-                request.onerror = (e) => reject(e.target.error);
-            });
-        }
-
-        async function saveFolderHandle(handle) {
-            const db = await initDB();
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readwrite');
-                tx.objectStore(storeName).put(handle, 'live_folder');
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => reject(tx.error);
-            });
-        }
-
-        async function getFolderHandle() {
-            const db = await initDB();
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readonly');
-                const request = tx.objectStore(storeName).get('live_folder');
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(tx.error);
-            });
-        }
-
-        async function verifyPermission(fileHandle, readWrite) {
-            const options = { mode: readWrite ? 'readwrite' : 'read' };
-            if ((await fileHandle.queryPermission(options)) === 'granted') {
-                return true;
-            }
-            if ((await fileHandle.requestPermission(options)) === 'granted') {
-                return true;
-            }
-            return false;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // DOM elements
             const sidebar = document.getElementById('sidebar');
             const notesListEl = document.getElementById('notes-list');
@@ -731,7 +841,6 @@
             const addNoteBtn = document.getElementById('add-note-btn');
             const deleteNoteBtn = document.getElementById('delete-note-btn');
             const exportSingleBtn = document.getElementById('export-single-btn');
-            const linkFolderBtn = document.getElementById('link-folder-btn');
             const noteTitleInput = document.getElementById('note-title');
             const noteContentEl = document.getElementById('note-content');
             const formatBtns = document.querySelectorAll('.format-btn');
@@ -742,6 +851,14 @@
             const tagListUI = document.getElementById('tag-list-ui');
             const newTagInput = document.getElementById('new-tag-input');
             const addTagSubmit = document.getElementById('add-tag-submit');
+            
+            // New UI Elements
+            const unexportedCountEl = document.getElementById('unexported-count');
+            const filterMenuBtn = document.getElementById('filter-menu-btn');
+            const filterDropdown = document.getElementById('filter-dropdown');
+            const filterOptions = document.querySelectorAll('.filter-option');
+            const trashFolderBtn = document.getElementById('trash-folder-btn');
+            const trashCountEl = document.getElementById('trash-count');
 
             // Shortcuts elements
             const shortcutsModalBtn = document.getElementById('shortcuts-modal-btn');
@@ -770,7 +887,17 @@
             const cardResizers = document.querySelectorAll('.card-resizer');
 
             // State
-            let notes = JSON.parse(localStorage.getItem('win11_richtext_notes')) || [];
+            function readNotesFromLocalStorage() {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem('win11_richtext_notes') || '[]');
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (error) {
+                    console.warn('Could not read local notes cache:', error);
+                    return [];
+                }
+            }
+
+            let notes = readNotesFromLocalStorage();
             let globalTags = JSON.parse(localStorage.getItem('win11_richtext_global_tags')) || [
                 'Content/Characters','Content/Dialogues','Content/Funny-Words','Content/Names','Content/Posts',
                 'Content/Quirks','Content/Scenes','Content/Signature-Dialogues','Content/Topics','General/Marketing',
@@ -785,10 +912,249 @@
             let unsubscribeSnapshot = null;
             let lastKeyWasEnter = false;
             let savedRange = null;
+            let currentFilter = 'all';
 
-            // Live Save State
-            let localFolderHandle = null;
-            let localSaveTimeout = null;
+            // Persistent UI / export / naming state.
+            const EXPORTED_IDS_KEY = 'win11_richtext_exported_note_ids';
+            const LAST_UNTITLED_NUMBER_KEY = 'win11_richtext_last_untitled_number';
+            const SIDEBAR_COLLAPSED_KEY = 'win11_richtext_sidebar_collapsed';
+            const PERMANENTLY_DELETED_IDS_KEY = 'win11_richtext_permanently_deleted_note_ids';
+            const NOTES_DB_NAME = 'win11_richtext_notes_db_v1';
+            const NOTES_DB_STORE = 'notes_cache';
+            const NOTES_DB_KEY = 'all_notes';
+
+            function readJsonArray(key) {
+                try {
+                    const value = JSON.parse(localStorage.getItem(key) || '[]');
+                    return Array.isArray(value) ? value : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            let exportedNoteIds = new Set(readJsonArray(EXPORTED_IDS_KEY));
+            let permanentlyDeletedNoteIds = new Set(readJsonArray(PERMANENTLY_DELETED_IDS_KEY));
+            let notesDbPromise = null;
+            let storageReady = false;
+
+            function openNotesDB() {
+                if (!('indexedDB' in window)) return Promise.resolve(null);
+                if (notesDbPromise) return notesDbPromise;
+
+                notesDbPromise = new Promise((resolve, reject) => {
+                    const request = indexedDB.open(NOTES_DB_NAME, 1);
+                    request.onupgradeneeded = () => {
+                        const db = request.result;
+                        if (!db.objectStoreNames.contains(NOTES_DB_STORE)) {
+                            db.createObjectStore(NOTES_DB_STORE);
+                        }
+                    };
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                }).catch(error => {
+                    console.warn('IndexedDB unavailable:', error);
+                    return null;
+                });
+
+                return notesDbPromise;
+            }
+
+            async function saveNotesToIndexedDB() {
+                const db = await openNotesDB();
+                if (!db) return;
+
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(NOTES_DB_STORE, 'readwrite');
+                    tx.objectStore(NOTES_DB_STORE).put(notes, NOTES_DB_KEY);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted'));
+                });
+            }
+
+            async function loadNotesFromIndexedDB() {
+                const db = await openNotesDB();
+                if (!db) return;
+
+                const indexedNotes = await new Promise((resolve, reject) => {
+                    const tx = db.transaction(NOTES_DB_STORE, 'readonly');
+                    const request = tx.objectStore(NOTES_DB_STORE).get(NOTES_DB_KEY);
+                    request.onsuccess = () => resolve(Array.isArray(request.result) ? request.result : []);
+                    request.onerror = () => reject(request.error);
+                }).catch(error => {
+                    console.warn('Could not read IndexedDB note cache:', error);
+                    return [];
+                });
+
+                if (!indexedNotes.length && !notes.length) return;
+
+                const localById = new Map(notes.map(note => [note.id, note]));
+                const indexedById = new Map(indexedNotes.map(note => [note.id, note]));
+                const merged = new Map();
+
+                for (const note of notes) merged.set(note.id, note);
+                for (const note of indexedNotes) {
+                    if (!note || !note.id || permanentlyDeletedNoteIds.has(note.id)) continue;
+                    const local = localById.get(note.id);
+                    const localVersion = local ? Number(local.updatedAt || local.timestamp || 0) : -1;
+                    const indexedVersion = Number(note.updatedAt || note.timestamp || 0);
+                    if (!local || indexedVersion > localVersion) merged.set(note.id, note);
+                }
+
+                notes = [...merged.values()].filter(note => note && note.id && !permanentlyDeletedNoteIds.has(note.id));
+                mergeExportHistoryIntoNotes();
+
+                try {
+                    localStorage.setItem('win11_richtext_notes', JSON.stringify(notes));
+                } catch (error) {
+                    console.warn('LocalStorage note cache is full; IndexedDB remains the primary local backup.', error);
+                }
+            }
+
+            function savePermanentDeleteHistory() {
+                localStorage.setItem(PERMANENTLY_DELETED_IDS_KEY, JSON.stringify([...permanentlyDeletedNoteIds]));
+            }
+
+            function getNoteVersion(note) {
+                return Number(note?.updatedAt || note?.timestamp || 0);
+            }
+
+            let lastUntitledNumber = Number.parseInt(
+                localStorage.getItem(LAST_UNTITLED_NUMBER_KEY) || '0',
+                10
+            );
+            if (!Number.isFinite(lastUntitledNumber) || lastUntitledNumber < 0) {
+                lastUntitledNumber = 0;
+            }
+
+            // Recover the highest Untitled N value from existing notes once,
+            // then keep the counter permanently increasing even if notes are deleted.
+            notes.forEach(note => {
+                const match = String(note.title || '').trim().match(/^Untitled (\d+)$/);
+                if (match) {
+                    lastUntitledNumber = Math.max(lastUntitledNumber, Number.parseInt(match[1], 10));
+                }
+                if (note.exported === true) {
+                    exportedNoteIds.add(note.id);
+                }
+            });
+
+            localStorage.setItem(LAST_UNTITLED_NUMBER_KEY, String(lastUntitledNumber));
+            localStorage.setItem(EXPORTED_IDS_KEY, JSON.stringify([...exportedNoteIds]));
+
+            function saveExportHistory() {
+                localStorage.setItem(EXPORTED_IDS_KEY, JSON.stringify([...exportedNoteIds]));
+            }
+
+            function setExportedState(note, exported) {
+                if (!note) return;
+                note.exported = exported;
+                if (exported) exportedNoteIds.add(note.id);
+                else exportedNoteIds.delete(note.id);
+                saveExportHistory();
+            }
+
+            function mergeExportHistoryIntoNotes() {
+                notes.forEach(note => {
+                    note.trashed = note.trashed === true;
+                    if (exportedNoteIds.has(note.id) || note.exported === true) {
+                        note.exported = true;
+                        exportedNoteIds.add(note.id);
+                    } else {
+                        note.exported = false;
+                    }
+                });
+                saveExportHistory();
+            }
+
+            // Remember the sidebar state across refreshes.
+            if (localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+
+            function setSidebarCollapsed(collapsed) {
+                sidebar.classList.toggle('collapsed', collapsed);
+                localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+            }
+
+            // Export Session State
+            let exportDirHandle = null; 
+
+            // ---------- Sidebar Counters ----------
+            function updateSidebarCounts() {
+                if (unexportedCountEl) {
+                    const count = notes.filter(n => !n.trashed && !n.exported).length;
+                    if (count === 0 && notes.some(n => !n.trashed)) {
+                        unexportedCountEl.textContent = 'All notes exported';
+                        unexportedCountEl.style.color = 'var(--success)';
+                    } else {
+                        unexportedCountEl.textContent = `${count} unexported note${count === 1 ? '' : 's'}`;
+                        unexportedCountEl.style.color = 'var(--text-secondary)';
+                    }
+                }
+
+                if (trashCountEl) {
+                    const count = notes.filter(n => n.trashed === true).length;
+                    trashCountEl.textContent = count ? String(count) : '';
+                }
+            }
+
+            function updateUnexportedCount() {
+                updateSidebarCounts();
+            }
+
+            // ---------- Filter Dropdown Logic ----------
+            filterMenuBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                filterDropdown.classList.toggle('visible');
+            });
+
+            filterOptions.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    setCurrentFilter(opt.dataset.filter);
+                });
+            });
+
+            function setCurrentFilter(filter) {
+                currentFilter = filter;
+                filterOptions.forEach(o => o.classList.toggle('active', o.dataset.filter === filter));
+                trashFolderBtn.classList.toggle('active', filter === 'trash');
+
+                const visibleNotes = getSortedNotes().filter(note => {
+                    if (filter === 'trash') return note.trashed === true;
+                    if (note.trashed === true) return false;
+                    if (filter === 'exported') return note.exported === true;
+                    if (filter === 'pending') return !note.exported;
+                    return true;
+                });
+
+                if (!visibleNotes.some(note => note.id === activeNoteId)) {
+                    activeNoteId = visibleNotes.length ? visibleNotes[0].id : null;
+                    selectedIds = activeNoteId ? new Set([activeNoteId]) : new Set();
+                    lastClickedId = activeNoteId;
+                    if (activeNoteId) loadActiveNote();
+                    else {
+                        noteTitleInput.value = '';
+                        noteContentEl.innerHTML = '';
+                        noteTitleInput.disabled = true;
+                        noteContentEl.contentEditable = 'false';
+                    }
+                }
+
+                renderNotesList();
+                updateSidebarCounts();
+                filterDropdown.classList.remove('visible');
+                updateContextMenuLabels();
+                if (typeof updateActionTooltips === 'function') updateActionTooltips();
+            }
+
+            document.addEventListener('click', (e) => {
+                if (filterDropdown.classList.contains('visible') && !e.target.closest('.filter-dropdown-container')) {
+                    filterDropdown.classList.remove('visible');
+                }
+            });
+
+            trashFolderBtn.addEventListener('click', () => setCurrentFilter(currentFilter === 'trash' ? 'all' : 'trash'));
 
             // ---------- Keyboard Shortcuts System ----------
             const shortcutActions = [
@@ -911,6 +1277,32 @@
                 }
 
                 if (shortcutsModal.classList.contains('visible')) return; 
+
+                const editorFocused = document.activeElement === noteContentEl || noteContentEl.contains(document.activeElement);
+                const isMod = e.ctrlKey || e.metaKey;
+                if (editorFocused && isMod) {
+                    const key = e.key.toLowerCase();
+                    if (key === 'z') {
+                        e.preventDefault();
+                        if (e.shiftKey) document.execCommand('redo');
+                        else document.execCommand('undo');
+                        requestAnimationFrame(() => {
+                            updateActiveNote();
+                            updateToolbarState();
+                        });
+                        return;
+                    }
+                    if (key === 'y') {
+                        e.preventDefault();
+                        document.execCommand('redo');
+                        requestAnimationFrame(() => {
+                            updateActiveNote();
+                            updateToolbarState();
+                        });
+                        return;
+                    }
+                }
+
                 if (document.activeElement.tagName === 'INPUT' && !e.ctrlKey && !e.metaKey) return; 
 
                 for (const action of shortcutActions) {
@@ -921,7 +1313,7 @@
                         if (action.id === 'newNote') createNewNote();
                         else if (action.id === 'delete') deleteNoteBtn.click();
                         else if (action.id === 'export') exportSingleBtn.click();
-                        else if (action.id === 'toggleMenu') sidebar.classList.toggle('collapsed');
+                        else if (action.id === 'toggleMenu') setSidebarCollapsed(!sidebar.classList.contains('collapsed'));
                         else if (action.id === 'bold') { document.execCommand('bold'); updateActiveNote(); updateToolbarState(); }
                         else if (action.id === 'italic') { document.execCommand('italic'); updateActiveNote(); updateToolbarState(); }
                         else if (action.id === 'heading2') { document.execCommand('formatBlock', false, 'H2'); updateActiveNote(); updateToolbarState(); }
@@ -1063,6 +1455,8 @@
                         if (!activeNote.tags) activeNote.tags = [];
                         if (isApplied) activeNote.tags = activeNote.tags.filter(t => t !== tag);
                         else activeNote.tags.push(tag);
+                        
+                        setExportedState(activeNote, false); // Note changed
                         saveToStorage(); 
                         updateActiveNote(); 
                         renderTagDropdown(); 
@@ -1075,8 +1469,8 @@
                             notes.forEach(n => {
                                 if (n.tags && n.tags.includes(tag)) {
                                     n.tags = n.tags.filter(t => t !== tag);
+                                    setExportedState(n, false); // Modified, so not technically the exported version
                                     debouncedCloudSave(n, 0); 
-                                    saveNoteToLocal(n); 
                                 }
                             });
                             saveToStorage();
@@ -1102,48 +1496,144 @@
             });
 
             // ---------- Firebase Sync ----------
-            function debouncedCloudSave(note, delay = 1000) {
-                if (!auth.currentUser) return; 
-                clearTimeout(syncTimeoutId);
-                syncTimeoutId = setTimeout(async () => {
+            const cloudSaveTimers = new Map();
+
+            function clearCloudSaveTimer(noteId) {
+                const timer = cloudSaveTimers.get(noteId);
+                if (timer) {
+                    clearTimeout(timer);
+                    cloudSaveTimers.delete(noteId);
+                }
+            }
+
+            function debouncedCloudSave(note, delay = 800) {
+                if (!auth.currentUser || !note) return;
+
+                clearCloudSaveTimer(note.id);
+                const snapshot = JSON.parse(JSON.stringify(note));
+
+                const timer = setTimeout(async () => {
+                    cloudSaveTimers.delete(snapshot.id);
                     try {
-                        const noteRef = doc(db, "users", auth.currentUser.uid, "notes", note.id);
-                        await setDoc(noteRef, note);
-                        console.log("Auto-saved to cloud");
-                    } catch (e) { console.error("Error saving to cloud:", e); }
-                }, delay); 
+                        const noteRef = doc(db, 'users', auth.currentUser.uid, 'notes', snapshot.id);
+                        await setDoc(noteRef, snapshot);
+                    } catch (error) {
+                        console.error('Error saving note to cloud:', error);
+                    }
+                }, delay);
+
+                cloudSaveTimers.set(note.id, timer);
+            }
+
+            async function saveNoteToCloud(note) {
+                if (!auth.currentUser || !note) return;
+                clearCloudSaveTimer(note.id);
+                try {
+                    const snapshot = JSON.parse(JSON.stringify(note));
+                    await setDoc(doc(db, 'users', auth.currentUser.uid, 'notes', note.id), snapshot);
+                } catch (error) {
+                    console.error('Error saving note to cloud:', error);
+                }
+            }
+
+            function mergeCloudNotes(cloudNotes) {
+                const localById = new Map(notes.map(note => [note.id, note]));
+                const cloudById = new Map(cloudNotes.map(note => [note.id, note]));
+                const merged = new Map();
+                const localNotesToUpload = [];
+
+                for (const cloudNote of cloudNotes) {
+                    if (!cloudNote?.id || permanentlyDeletedNoteIds.has(cloudNote.id)) continue;
+
+                    const localNote = localById.get(cloudNote.id);
+                    if (!localNote) {
+                        merged.set(cloudNote.id, cloudNote);
+                        continue;
+                    }
+
+                    if (getNoteVersion(localNote) > getNoteVersion(cloudNote)) {
+                        merged.set(localNote.id, localNote);
+                        localNotesToUpload.push(localNote);
+                    } else {
+                        merged.set(cloudNote.id, cloudNote);
+                    }
+                }
+
+                // Never discard a local note just because the first Firebase snapshot
+                // has not received it yet. Preserve it and upload it.
+                for (const localNote of notes) {
+                    if (!localNote?.id || permanentlyDeletedNoteIds.has(localNote.id)) continue;
+                    if (!cloudById.has(localNote.id)) {
+                        merged.set(localNote.id, localNote);
+                        localNotesToUpload.push(localNote);
+                    }
+                }
+
+                notes = [...merged.values()].sort((a, b) => getNoteVersion(b) - getNoteVersion(a));
+                mergeExportHistoryIntoNotes();
+                return localNotesToUpload;
             }
 
             function listenToCloud() {
                 if (!auth.currentUser) return;
                 if (unsubscribeSnapshot) unsubscribeSnapshot();
-                const notesRef = collection(db, "users", auth.currentUser.uid, "notes");
-                unsubscribeSnapshot = onSnapshot(notesRef, (querySnapshot) => {
-                    if (querySnapshot.metadata.hasPendingWrites) return; 
+
+                const notesRef = collection(db, 'users', auth.currentUser.uid, 'notes');
+                unsubscribeSnapshot = onSnapshot(notesRef, async (querySnapshot) => {
+                    // Keep our local version untouched while our own writes are still pending.
+                    if (querySnapshot.metadata.hasPendingWrites) return;
+
                     const cloudNotes = [];
-                    querySnapshot.forEach((doc) => cloudNotes.push(doc.data()));
-                    if (cloudNotes.length > 0) {
-                        notes = cloudNotes.sort((a, b) => b.timestamp - a.timestamp);
+                    querySnapshot.forEach(snapshot => cloudNotes.push(snapshot.data()));
+
+                    const localNotesToUpload = mergeCloudNotes(cloudNotes);
+
+                    try {
                         localStorage.setItem('win11_richtext_notes', JSON.stringify(notes));
-                        renderNotesList();
-                        const activeCloudNote = notes.find(n => n.id === activeNoteId);
-                        if (!activeCloudNote) {
-                            activeNoteId = notes[0].id;
-                            loadActiveNote();
-                        } else if (noteContentEl.innerHTML !== activeCloudNote.content || noteTitleInput.value !== activeCloudNote.title) {
-                            loadActiveNote();
-                        }
-                    } else {
-                        notes = [];
-                        renderNotesList();
+                    } catch (error) {
+                        console.warn('LocalStorage note cache is full; continuing with IndexedDB.', error);
                     }
-                }, (error) => console.error("Real-time sync error:", error));
+                    saveNotesToIndexedDB().catch(error => console.warn('IndexedDB cache save failed:', error));
+
+                    if (localNotesToUpload.length) {
+                        const uniqueNotes = [...new Map(localNotesToUpload.map(note => [note.id, note])).values()];
+                        await Promise.all(uniqueNotes.map(note => saveNoteToCloud(note)));
+                    }
+
+                    const liveVisibleNotes = getSortedNotes().filter(note => {
+                        if (currentFilter === 'trash') return note.trashed === true;
+                        return note.trashed !== true;
+                    });
+
+                    if (!liveVisibleNotes.some(note => note.id === activeNoteId)) {
+                        activeNoteId = liveVisibleNotes.length ? liveVisibleNotes[0].id : null;
+                        selectedIds = activeNoteId ? new Set([activeNoteId]) : new Set();
+                        lastClickedId = activeNoteId;
+                    }
+
+                    renderNotesList();
+                    updateUnexportedCount();
+
+                    const activeCloudNote = notes.find(note => note.id === activeNoteId);
+                    if (activeCloudNote && (
+                        noteContentEl.innerHTML !== activeCloudNote.content ||
+                        noteTitleInput.value !== activeCloudNote.title
+                    )) {
+                        loadActiveNote();
+                    } else if (!activeCloudNote) {
+                        loadActiveNote();
+                    }
+                }, error => console.error('Real-time sync error:', error));
             }
 
             async function deleteFromCloud(noteId) {
+                clearCloudSaveTimer(noteId);
                 if (!auth.currentUser) return;
-                try { await deleteDoc(doc(db, "users", auth.currentUser.uid, "notes", noteId)); }
-                catch (e) { console.error("Error deleting from cloud:", e); }
+                try {
+                    await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'notes', noteId));
+                } catch (error) {
+                    console.error('Error deleting from cloud:', error);
+                }
             }
 
             // ---------- Auth ----------
@@ -1179,7 +1669,9 @@
                     loginBtn.style.color = "var(--accent)";
                     loginBtn.style.borderColor = "var(--accent)";
                     logoutBtn.style.display = "flex";
-                    listenToCloud(); 
+                    // Do not start Firebase replacement/merge until local storage
+                    // (including the IndexedDB backup) has finished loading.
+                    if (storageReady) listenToCloud();
                 } else {
                     loginBtn.textContent = "Login to Sync";
                     loginBtn.style.color = "";
@@ -1192,161 +1684,105 @@
                 }
             });
 
-            // ---------- Link Local Folder (Live Editing) ----------
-            linkFolderBtn.addEventListener('click', async () => {
-                try {
-                    if (localFolderHandle) {
-                        const hasPermission = await verifyPermission(localFolderHandle, true);
-                        if (hasPermission) {
-                            linkFolderBtn.classList.add('active');
-                            linkFolderBtn.style.color = ""; 
-                            linkFolderBtn.title = "Folder Linked (Live Saving is Active)";
-                            alert("Folder reconnected successfully!");
-                            
-                            const activeNote = notes.find(n => n.id === activeNoteId);
-                            if (activeNote) saveNoteToLocal(activeNote);
-                            return;
-                        }
-                    }
-                    
-                    localFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'notepad_live_sync' });
-                    await saveFolderHandle(localFolderHandle);
-                    
-                    linkFolderBtn.classList.add('active');
-                    linkFolderBtn.style.color = "";
-                    linkFolderBtn.title = "Folder Linked (Live Saving is Active)";
-                    
-                    const activeNote = notes.find(n => n.id === activeNoteId);
-                    if (activeNote) saveNoteToLocal(activeNote);
-                    
-                    alert("Folder linked successfully! Changes will now save directly to this folder.");
-                } catch (e) {
-                    if (e.name !== 'AbortError') {
-                        console.error('Error linking folder:', e);
-                        alert("Could not link folder. Ensure your browser supports the File System Access API.");
-                    }
-                }
-            });
-
-            async function restoreFolderConnection() {
-                try {
-                    const savedHandle = await getFolderHandle();
-                    if (savedHandle) {
-                        localFolderHandle = savedHandle;
-                        // Visually change the button to show it remembers a folder but needs a click to wake up
-                        linkFolderBtn.style.color = "#ffcc00"; 
-                        linkFolderBtn.title = "Click to reconnect saved folder";
-                    }
-                } catch (e) {
-                    console.error("Could not restore folder handle", e);
-                }
-            }
-
-            async function saveNoteToLocal(note) {
-                if (!localFolderHandle) return;
-                
-                try {
-                    const safeTitle = (note.title.trim() || 'Untitled').replace(/[/\\?%*:|"<>]/g, '-');
-                    const newFilename = `${safeTitle}.md`;
-
-                    if (note.localFilename && note.localFilename !== newFilename) {
-                        try {
-                            await localFolderHandle.removeEntry(note.localFilename);
-                        } catch (e) {
-                            console.warn("Could not delete old file (it might already be deleted or renamed outside the app).");
-                        }
-                    }
-                    
-                    note.localFilename = newFilename;
-
-                    const mdContent = convertHtmlToMarkdown(note.content);
-                    let finalExportText = mdContent;
-                    
-                    if (note.tags && note.tags.length > 0) {
-                        const yamlTags = note.tags.map(tag => `  - ${tag}`).join('\n');
-                        finalExportText = `---\ntags:\n${yamlTags}\n---\n\n` + mdContent;
-                    }
-
-                    const fileHandle = await localFolderHandle.getFileHandle(newFilename, { create: true });
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(finalExportText);
-                    await writable.close();
-                    
-                    console.log(`Live saved: ${newFilename}`);
-                } catch (err) {
-                    console.error("Local save failed", err);
-                }
-            }
-
-            // ---------- Local Folder Watcher (Background Polling) ----------
-            async function watchLocalFolder() {
-                // If no folder is linked, do nothing
-                if (!localFolderHandle) return;
-
-                try {
-                    // Fail gracefully if we don't have permission (e.g., after a refresh before clicking the yellow icon)
-                    if ((await localFolderHandle.queryPermission({mode: 'read'})) !== 'granted') return;
-
-                    // Get a list of all files currently in the OS folder
-                    const existingFiles = new Set();
-                    for await (const entry of localFolderHandle.values()) {
-                        if (entry.kind === 'file') {
-                            existingFiles.add(entry.name);
-                        }
-                    }
-
-                    // Check if any of our tracked notes are missing from the OS folder
-                    const idsToDelete = [];
-                    notes.forEach(note => {
-                        if (note.localFilename && !existingFiles.has(note.localFilename)) {
-                            idsToDelete.push(note.id);
-                        }
-                    });
-
-                    // If files are missing, delete them from the app UI and Firebase
-                    if (idsToDelete.length > 0) {
-                        console.log("Local deletion detected, removing from app:", idsToDelete);
-                        deleteNotes(idsToDelete, true); // Pass 'true' to skip attempting to delete the local file
-                    }
-                } catch (e) {
-                    console.warn("Folder watch error (likely permission lost or folder moved).");
-                }
-            }
-
-            // Start scanning the folder every 3 seconds
-            setInterval(watchLocalFolder, 3000);
-
-
             // ---------- Core Note Functions ----------
-            function init() {
+            function persistLocalNotes() {
+                mergeExportHistoryIntoNotes();
+                try {
+                    localStorage.setItem('win11_richtext_notes', JSON.stringify(notes));
+                } catch (error) {
+                    // Rich image data can exhaust LocalStorage. IndexedDB keeps the notes safe.
+                    console.warn('LocalStorage note cache is full; using IndexedDB for persistence.', error);
+                }
+                saveNotesToIndexedDB().catch(error => console.warn('IndexedDB cache save failed:', error));
+            }
+
+            async function init() {
                 updateTooltips();
-                restoreFolderConnection();
-                if (notes.length === 0) createNewNote();
-                else {
-                    activeNoteId = notes[0].id;
+                await loadNotesFromIndexedDB();
+                mergeExportHistoryIntoNotes();
+                trashFolderBtn.classList.toggle('active', currentFilter === 'trash');
+
+                const liveNotes = getSortedNotes().filter(note => !note.trashed);
+                if (liveNotes.length === 0) {
+                    createNewNote();
+                } else {
+                    activeNoteId = liveNotes[0].id;
                     selectedIds = new Set([activeNoteId]);
                     lastClickedId = activeNoteId;
                     renderNotesList();
+                    updateUnexportedCount();
                     loadActiveNote();
                 }
             }
 
             function saveToStorage() {
-                localStorage.setItem('win11_richtext_notes', JSON.stringify(notes));
+                persistLocalNotes();
                 renderNotesList();
+                updateUnexportedCount();
                 const activeNote = notes.find(n => n.id === activeNoteId);
                 if (activeNote) debouncedCloudSave(activeNote);
             }
 
+            // --- MONOTONIC SMART NEW NOTE NAMING ---
+            // The counter is intentionally separate from notes so deleting
+            // "Untitled 4" does not allow "Untitled 4" to be reused.
             function createNewNote() {
-                const newNote = { id: Date.now().toString(), title: '', content: '', timestamp: Date.now(), tags: [], localFilename: null };
+                let hasPlainUntitled = false;
+                let highestSeenNumber = lastUntitledNumber;
+
+                notes.forEach(n => {
+                    const title = String(n.title || '').trim();
+                    if (title === 'Untitled') hasPlainUntitled = true;
+
+                    const match = title.match(/^Untitled (\d+)$/);
+                    if (match) {
+                        highestSeenNumber = Math.max(
+                            highestSeenNumber,
+                            Number.parseInt(match[1], 10)
+                        );
+                    }
+                });
+
+                lastUntitledNumber = highestSeenNumber;
+
+                let newTitle;
+                if (!hasPlainUntitled && lastUntitledNumber === 0) {
+                    newTitle = 'Untitled';
+                } else {
+                    lastUntitledNumber += 1;
+                    newTitle = `Untitled ${lastUntitledNumber}`;
+                }
+
+                localStorage.setItem(LAST_UNTITLED_NUMBER_KEY, String(lastUntitledNumber));
+
+                const newNote = { 
+                    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, 
+                    title: newTitle, 
+                    content: '', 
+                    timestamp: Date.now(), 
+                    updatedAt: Date.now(),
+                    tags: [], 
+                    exported: false
+                };
+
+                newNote.trashed = false;
+                newNote.trashedAt = null;
                 notes.unshift(newNote);
                 activeNoteId = newNote.id;
                 selectedIds = new Set([activeNoteId]);
                 lastClickedId = activeNoteId;
+
+                if (currentFilter === 'exported' || currentFilter === 'trash') {
+                    setCurrentFilter('all');
+                }
+
                 saveToStorage();
                 loadActiveNote();
-                noteContentEl.focus();
+
+                setTimeout(() => {
+                    noteTitleInput.focus();
+                    noteTitleInput.select();
+                }, 50);
             }
 
             function loadActiveNote() {
@@ -1364,18 +1800,21 @@
                 }
             }
 
+            // --- TRACKING CHANGES TO REMOVE "EXPORTED" STATUS ---
             function updateActiveNote() {
                 const activeNote = notes.find(n => n.id === activeNoteId);
                 if (activeNote) {
-                    activeNote.title = noteTitleInput.value;
-                    activeNote.content = noteContentEl.innerHTML;
-                    activeNote.timestamp = Date.now();
+                    const hasChanged = activeNote.title !== noteTitleInput.value || activeNote.content !== noteContentEl.innerHTML;
+                    
+                    if (hasChanged) {
+                        activeNote.title = noteTitleInput.value;
+                        activeNote.content = noteContentEl.innerHTML;
+                        activeNote.timestamp = Date.now();
+                        activeNote.updatedAt = activeNote.timestamp;
+                        setExportedState(activeNote, false); // Edited notes need re-exporting.
+                    }
+                    
                     saveToStorage();
-
-                    clearTimeout(localSaveTimeout);
-                    localSaveTimeout = setTimeout(() => {
-                        saveNoteToLocal(activeNote);
-                    }, 1000); 
                 }
             }
 
@@ -1383,30 +1822,110 @@
                 return [...notes].sort((a, b) => b.timestamp - a.timestamp);
             }
 
-            function deleteNotes(ids, skipLocalDelete = false) {
-                ids.forEach(async id => {
-                    const noteToDelete = notes.find(n => n.id === id);
-                    deleteFromCloud(id);
-                    
-                    if (!skipLocalDelete && localFolderHandle && noteToDelete && noteToDelete.localFilename) {
-                        try {
-                            await localFolderHandle.removeEntry(noteToDelete.localFilename);
-                        } catch (e) { console.warn("Failed to delete local file", e); }
+            function chooseNextActiveNote() {
+                const available = getSortedNotes().filter(n => !n.trashed);
+                activeNoteId = available.length ? available[0].id : null;
+                selectedIds = activeNoteId ? new Set([activeNoteId]) : new Set();
+                lastClickedId = activeNoteId;
+            }
+
+            async function moveNotesToTrash(ids) {
+                const idSet = new Set(ids);
+                const now = Date.now();
+                notes.forEach(note => {
+                    if (idSet.has(note.id)) {
+                        note.trashed = true;
+                        note.trashedAt = now;
+                        note.timestamp = now;
+                        note.updatedAt = now;
                     }
                 });
-                
-                notes = notes.filter(n => !ids.includes(n.id));
-                ids.forEach(id => selectedIds.delete(id));
-                if (ids.includes(activeNoteId)) {
-                    activeNoteId = notes.length > 0 ? notes[0].id : null;
-                    if (activeNoteId) {
-                        selectedIds.add(activeNoteId);
-                        lastClickedId = activeNoteId;
-                    }
+
+                selectedIds.clear();
+                if (idSet.has(activeNoteId)) {
+                    chooseNextActiveNote();
                 }
+
+                saveToStorage();
+                for (const id of ids) {
+                    const note = notes.find(n => n.id === id);
+                    if (note) await saveNoteToCloud(note);
+                }
+
+                if (activeNoteId) loadActiveNote();
+                else if (currentFilter !== 'trash') createNewNote();
+                else {
+                    noteTitleInput.value = '';
+                    noteContentEl.innerHTML = '';
+                    noteTitleInput.disabled = true;
+                    noteContentEl.contentEditable = 'false';
+                }
+            }
+
+            async function restoreNotes(ids) {
+                const idSet = new Set(ids);
+                notes.forEach(note => {
+                    if (idSet.has(note.id)) {
+                        note.trashed = false;
+                        note.trashedAt = null;
+                        note.timestamp = Date.now();
+                        note.updatedAt = note.timestamp;
+                    }
+                });
+
+                if (idSet.has(activeNoteId) || currentFilter === 'trash') {
+                    chooseNextActiveNote();
+                }
+                selectedIds.clear();
+                if (activeNoteId) selectedIds.add(activeNoteId);
+
+                saveToStorage();
+                for (const id of ids) {
+                    const note = notes.find(n => n.id === id);
+                    if (note) await saveNoteToCloud(note);
+                }
+                if (activeNoteId) loadActiveNote();
+                else {
+                    noteTitleInput.value = '';
+                    noteContentEl.innerHTML = '';
+                    noteTitleInput.disabled = true;
+                    noteContentEl.contentEditable = 'false';
+                }
+            }
+
+            async function permanentlyDeleteNotes(ids) {
+                ids.forEach(id => permanentlyDeletedNoteIds.add(id));
+                savePermanentDeleteHistory();
+
+                for (const id of ids) {
+                    await deleteFromCloud(id);
+                }
+
+                const idSet = new Set(ids);
+                notes = notes.filter(n => !idSet.has(n.id));
+                ids.forEach(id => {
+                    selectedIds.delete(id);
+                    exportedNoteIds.delete(id);
+                });
+                saveExportHistory();
+
+                if (idSet.has(activeNoteId) || !notes.find(n => n.id === activeNoteId)) {
+                    chooseNextActiveNote();
+                }
+
                 saveToStorage();
                 if (activeNoteId) loadActiveNote();
-                else createNewNote();
+                else {
+                    noteTitleInput.value = '';
+                    noteContentEl.innerHTML = '';
+                    noteTitleInput.disabled = true;
+                    noteContentEl.contentEditable = 'false';
+                }
+            }
+
+            function deleteNotes(ids) {
+                // Backward-compatible wrapper: Delete now means Move to Trash.
+                moveNotesToTrash(ids);
             }
 
             function extractText(html) {
@@ -1417,22 +1936,49 @@
 
             function renderNotesList() {
                 notesListEl.innerHTML = '';
-                const sortedNotes = getSortedNotes();
+                
+                // Filter the notes
+                const filteredNotes = getSortedNotes().filter(note => {
+                    if (currentFilter === 'trash') return note.trashed === true;
+                    if (note.trashed === true) return false;
+                    if (currentFilter === 'exported') return note.exported === true;
+                    if (currentFilter === 'pending') return !note.exported;
+                    return true;
+                });
 
-                sortedNotes.forEach(note => {
+                if (filteredNotes.length === 0) {
+                    const empty = document.createElement('li');
+                    empty.style.cssText = 'justify-content:center;cursor:default;color:var(--text-secondary);font-size:12px;padding:24px 14px;text-align:center;';
+                    empty.textContent = currentFilter === 'trash' ? 'Trash is empty' : 'No notes';
+                    notesListEl.appendChild(empty);
+                    return;
+                }
+
+                filteredNotes.forEach(note => {
                     const li = document.createElement('li');
                     li.dataset.id = note.id;
                     li.className = '';
                     if (note.id === activeNoteId) li.classList.add('active');
                     if (selectedIds.has(note.id)) li.classList.add('selected');
 
-                    const titleText = note.title.trim() || 'Untitled';
-                    const previewText = extractText(note.content).trim() || 'Empty note';
+                    const titleText = String(note.title || '').trim() || 'Untitled';
+                    const previewText = extractText(note.content || '').trim() || 'Empty note';
+                    
+                    // Standard tags (unaffected by active state)
                     const tagsHtml = (note.tags || []).map(t => `<span class="tag-badge">${t}</span>`).join('');
+                    
+                    // WhatsApp style double-check
+                    const checkmarkHtml = note.exported ? 
+                        `<svg class="exported-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Exported"><path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path></svg>` 
+                        : '';
 
+                    if (note.trashed) li.classList.add('trashed-note');
                     li.innerHTML = `
                         <div class="note-item-info">
-                            <div class="note-item-title">${titleText}</div>
+                            <div class="note-item-title">
+                                <span class="note-item-title-text">${titleText}</span>
+                                ${checkmarkHtml}
+                            </div>
                             <div class="note-item-preview">${previewText}</div>
                             ${tagsHtml ? `<div class="note-item-tags">${tagsHtml}</div>` : ''}
                         </div>
@@ -1440,6 +1986,110 @@
                     notesListEl.appendChild(li);
                 });
             }
+
+            // ---------- Context Menu Creation & Logic ----------
+            const contextMenu = document.createElement('div');
+            contextMenu.className = 'context-menu';
+            contextMenu.innerHTML = `
+                <div class="menu-item" id="ctx-rename">Rename</div>
+                <div class="menu-item" id="ctx-duplicate">Duplicate</div>
+                <div class="menu-item" id="ctx-export">Export</div>
+                <div class="menu-item" id="ctx-restore">Restore</div>
+                <div class="menu-item danger" id="ctx-delete">Delete</div>
+            `;
+            document.body.appendChild(contextMenu);
+
+            let ctxNoteId = null;
+            let ctxSelectedIds = [];
+
+            function updateContextMenuLabels() {
+                const restore = document.getElementById('ctx-restore');
+                const del = document.getElementById('ctx-delete');
+                const exp = document.getElementById('ctx-export');
+                restore.style.display = currentFilter === 'trash' ? 'block' : 'none';
+                exp.style.display = currentFilter === 'trash' ? 'none' : 'block';
+                del.textContent = currentFilter === 'trash' ? 'Delete Permanently' : 'Move to Trash';
+            }
+
+            document.addEventListener('click', () => {
+                contextMenu.classList.remove('visible');
+            });
+
+            notesListEl.addEventListener('contextmenu', (e) => {
+                const li = e.target.closest('li[data-id]');
+                if (!li) return;
+                e.preventDefault();
+                
+                ctxNoteId = li.dataset.id;
+                // Right-clicking an already-selected note preserves the whole
+                // multi-selection. Right-clicking an unselected note makes it
+                // the only selection.
+                if (!selectedIds.has(ctxNoteId)) {
+                    selectOnly(ctxNoteId);
+                }
+                ctxSelectedIds = [...selectedIds];
+
+                activeNoteId = ctxNoteId;
+                loadActiveNote();
+                renderNotesList();
+                updateContextMenuLabels();
+                
+                contextMenu.style.left = `${e.clientX}px`;
+                contextMenu.style.top = `${e.clientY}px`;
+                contextMenu.classList.add('visible');
+            });
+
+            document.getElementById('ctx-rename').addEventListener('click', () => {
+                if (!ctxNoteId) return;
+                setTimeout(() => {
+                    noteTitleInput.focus();
+                    noteTitleInput.select();
+                }, 50);
+            });
+
+            document.getElementById('ctx-duplicate').addEventListener('click', () => {
+                if (!ctxNoteId) return;
+                const noteToCopy = notes.find(n => n.id === ctxNoteId);
+                if (noteToCopy) {
+                    const newNote = {
+                        ...noteToCopy,
+                        id: Date.now().toString(),
+                        title: noteToCopy.title + ' (Copy)',
+                        timestamp: Date.now(),
+                        updatedAt: Date.now(),
+                        exported: false, // Copies are not exported yet
+                        trashed: false,
+                        trashedAt: null
+                    };
+                    notes.unshift(newNote);
+                    activeNoteId = newNote.id;
+                    selectedIds = new Set([activeNoteId]);
+                    saveToStorage();
+                    loadActiveNote();
+                }
+            });
+
+            document.getElementById('ctx-export').addEventListener('click', () => {
+                if (ctxSelectedIds.length) {
+                    selectedIds = new Set(ctxSelectedIds);
+                    triggerBulkExport();
+                }
+            });
+
+            document.getElementById('ctx-restore').addEventListener('click', () => {
+                if (ctxSelectedIds.length) restoreNotes(ctxSelectedIds);
+            });
+
+            document.getElementById('ctx-delete').addEventListener('click', () => {
+                if (!ctxSelectedIds.length) return;
+                if (currentFilter === 'trash') {
+                    if (confirm(`Permanently delete ${ctxSelectedIds.length} note(s)? This cannot be undone.`)) {
+                        permanentlyDeleteNotes(ctxSelectedIds);
+                    }
+                } else if (confirm(`Move ${ctxSelectedIds.length} note(s) to Trash?`)) {
+                    moveNotesToTrash(ctxSelectedIds);
+                }
+            });
 
             // ---------- Export / Conversion ----------
             function convertHtmlToMarkdown(html) {
@@ -1451,10 +2101,8 @@
                     if (img) {
                         const alt = img.getAttribute('alt') || '';
                         const src = img.getAttribute('src') || '';
-                        // Replace the ENTIRE wrapper span, wiping out the resize handle as well
                         container.replaceWith(`![${alt}](${src})`);
                     } else {
-                        // Fallback cleanup just in case there's an empty container
                         container.remove();
                     }
                 });
@@ -1502,50 +2150,59 @@
                 return markdown.replace(/\n{3,}/g, '\n\n').trim();
             }
 
-            // Fallback export if folder isn't linked, or user specifically clicks "Export Selected"
             async function triggerBulkExport() {
                 const idsToExport = selectedIds.size > 0 ? [...selectedIds] : (activeNoteId ? [activeNoteId] : []);
                 if (idsToExport.length === 0) {
                     alert('No notes selected.');
                     return;
                 }
-
-                let targetDirHandle = localFolderHandle;
                 
-                if (!targetDirHandle) {
+                // Prompt for directory once per session, keep it in memory
+                if (!exportDirHandle) {
                     try {
-                        targetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'notepad_manual_export' });
+                        exportDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'notepad_manual_export' });
                     } catch (e) {
-                        return; 
+                        return; // User canceled the picker
                     }
                 }
+
+                let exportSuccess = false;
 
                 for (const id of idsToExport) {
                     const targetNote = notes.find(n => n.id === id);
                     if (targetNote) {
                         try {
-                            const safeTitle = (targetNote.title.trim() || 'Untitled').replace(/[/\\?%*:|"<>]/g, '-');
+                            const safeTitle = (targetNote.title.trim() || 'Untitled').replace(/[\/\\?%*:|"<>]/g, '-');
                             const filename = `${safeTitle}.md`;
                             const mdContent = convertHtmlToMarkdown(targetNote.content);
                             let finalExportText = mdContent;
+                            
                             if (targetNote.tags && targetNote.tags.length > 0) {
                                 const yamlTags = targetNote.tags.map(tag => `  - ${tag}`).join('\n');
                                 finalExportText = `---\ntags:\n${yamlTags}\n---\n\n` + mdContent;
                             }
-                            const fileHandle = await targetDirHandle.getFileHandle(filename, { create: true });
+                            
+                            const fileHandle = await exportDirHandle.getFileHandle(filename, { create: true });
                             const writable = await fileHandle.createWritable();
                             await writable.write(finalExportText);
                             await writable.close();
+                            
+                            setExportedState(targetNote, true); // Persist export history independently of note data.
+                            exportSuccess = true;
                         } catch (err) {
                             console.error(`Export failed for ${targetNote.title}`, err);
                         }
                     }
                 }
 
-                const btn = document.getElementById('export-single-btn');
-                const originalColor = btn.style.color;
-                btn.style.color = 'var(--accent)';
-                setTimeout(() => btn.style.color = originalColor, 1000);
+                if (exportSuccess) {
+                    saveToStorage(); // This triggers renderNotesList() to show the green badges
+                    
+                    const btn = document.getElementById('export-single-btn');
+                    const originalColor = btn.style.color;
+                    btn.style.color = 'var(--success)';
+                    setTimeout(() => btn.style.color = originalColor, 1000);
+                }
             }
 
             // ---------- Toolbar Active State ----------
@@ -1574,8 +2231,13 @@
             });
 
             // ---------- Event Listeners ----------
-            toggleSidebarBtn.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+            function updateActionTooltips() {
+                deleteNoteBtn.title = currentFilter === 'trash' ? 'Delete Selected Notes Permanently' : 'Move Selected Notes to Trash';
+            }
+
+            toggleSidebarBtn.addEventListener('click', () => setSidebarCollapsed(!sidebar.classList.contains('collapsed')));
             addNoteBtn.addEventListener('click', createNewNote);
+            updateActionTooltips();
 
             // ---------- Multi‑selection logic ----------
             function selectOnly(id) {
@@ -1683,13 +2345,23 @@
 
             // ---------- Delete button ----------
             deleteNoteBtn.addEventListener('click', () => {
-                const idsToDelete = selectedIds.size > 0 ? [...selectedIds] : (activeNoteId ? [activeNoteId] : []);
-                if (idsToDelete.length === 0) {
-                    alert('No notes selected.');
+                const visibleIds = getSortedNotes()
+                    .filter(n => currentFilter === 'trash' ? n.trashed === true : n.trashed !== true)
+                    .map(n => n.id);
+                const idsToDelete = [...selectedIds].filter(id => visibleIds.includes(id));
+                const ids = idsToDelete.length > 0 ? idsToDelete : (activeNoteId ? [activeNoteId] : []);
+
+                if (ids.length === 0) {
+                    alert(currentFilter === 'trash' ? 'No notes in Trash selected.' : 'No notes selected.');
                     return;
                 }
-                if (confirm(`Delete ${idsToDelete.length} note(s)?`)) {
-                    deleteNotes(idsToDelete);
+
+                if (currentFilter === 'trash') {
+                    if (confirm(`Permanently delete ${ids.length} note(s)? This cannot be undone.`)) {
+                        permanentlyDeleteNotes(ids);
+                    }
+                } else if (confirm(`Move ${ids.length} note(s) to Trash?`)) {
+                    moveNotesToTrash(ids);
                 }
             });
 
@@ -1741,31 +2413,58 @@
                 }
             }
 
-            function showLinkPopup() {
-                saveCurrentSelection();
-                if (savedRange && !savedRange.collapsed) {
-                    linkTextInput.value = savedRange.toString();
-                } else {
-                    linkTextInput.value = '';
-                }
-                linkUrlInput.value = '';
+            let editingLinkElement = null;
+
+            function positionLinkPopup() {
                 const linkBtn = document.querySelector('[data-command="createLink"]');
                 const rect = linkBtn.getBoundingClientRect();
                 linkPopup.style.top = (rect.bottom + 8) + 'px';
                 linkPopup.style.left = (rect.left) + 'px';
+            }
+
+            function showLinkPopup(linkElement = null) {
+                if (linkElement) {
+                    editingLinkElement = linkElement;
+                    saveCurrentSelection();
+                    linkTextInput.value = linkElement.textContent || '';
+                    linkUrlInput.value = linkElement.getAttribute('href') || '';
+                    insertLinkBtn.textContent = 'Update';
+                } else {
+                    editingLinkElement = null;
+                    saveCurrentSelection();
+                    if (savedRange && !savedRange.collapsed) linkTextInput.value = savedRange.toString();
+                    else linkTextInput.value = '';
+                    linkUrlInput.value = '';
+                    insertLinkBtn.textContent = 'Insert';
+                }
+
+                positionLinkPopup();
                 linkPopup.classList.add('visible');
                 setTimeout(() => linkTextInput.focus(), 50);
             }
 
             function hideLinkPopup() {
                 linkPopup.classList.remove('visible');
+                editingLinkElement = null;
+                insertLinkBtn.textContent = 'Insert';
             }
 
             function insertLink() {
-                const url = linkUrlInput.value.trim();
+                const url = normalizeUrl(linkUrlInput.value.trim());
                 const text = linkTextInput.value.trim();
-                if (!url || !text) {
-                    alert('Please enter both link text and URL.');
+                if (!url || !text || !isSafeUrl(url)) {
+                    alert('Please enter valid link text and an http(s)/mailto URL.');
+                    return;
+                }
+
+                if (editingLinkElement && noteContentEl.contains(editingLinkElement)) {
+                    editingLinkElement.href = url;
+                    editingLinkElement.textContent = text;
+                    editingLinkElement.target = '_blank';
+                    editingLinkElement.rel = 'noopener noreferrer';
+                    updateActiveNote();
+                    hideLinkPopup();
+                    noteContentEl.focus();
                     return;
                 }
 
@@ -1776,6 +2475,8 @@
                     range.deleteContents();
                     const link = document.createElement('a');
                     link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
                     link.textContent = text;
                     range.insertNode(link);
                     range.setStartAfter(link);
@@ -1784,7 +2485,7 @@
                     sel.addRange(range);
                 } else {
                     noteContentEl.focus();
-                    document.execCommand('insertHTML', false, `<a href="${url}">${text}</a>`);
+                    document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`);
                 }
                 updateActiveNote();
                 hideLinkPopup();
@@ -1798,6 +2499,28 @@
                 } else {
                     showLinkPopup();
                 }
+            });
+
+            noteContentEl.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (!link || !noteContentEl.contains(link)) return;
+
+                // ONLY Ctrl/Cmd-click opens the URL. Every other click edits the link.
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (e.ctrlKey || e.metaKey) {
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                    return;
+                }
+
+                const range = document.createRange();
+                range.selectNodeContents(link);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                savedRange = range.cloneRange();
+                showLinkPopup(link);
             });
 
             insertLinkBtn.addEventListener('click', insertLink);
@@ -1842,35 +2565,12 @@
             }
 
             function insertImage(src, alt) {
-                restoreSelection();
-                const container = document.createElement('span');
-                container.className = 'img-resize-container';
-                container.contentEditable = 'false';
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = alt || '';
-                img.setAttribute('loading', 'lazy');
-                const handle = document.createElement('span');
-                handle.className = 'resize-handle';
-                container.appendChild(img);
-                container.appendChild(handle);
-
-                const sel = window.getSelection();
-                if (sel.rangeCount) {
-                    const range = sel.getRangeAt(0);
-                    range.deleteContents();
-                    range.insertNode(container);
-                    range.setStartAfter(container);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else {
-                    noteContentEl.focus();
-                    document.execCommand('insertHTML', false, container.outerHTML);
-                }
-                updateActiveNote();
+                const markup = buildResizableImageMarkup(src, alt || '');
+                if (!markup) return;
+                insertHtmlAtSelection(markup);
                 hideImagePopup();
                 noteContentEl.focus();
+                setTimeout(enforceTypewriterScroll, 50);
             }
 
             function handleImageFromUrl() {
@@ -2069,14 +2769,324 @@
                 lastKeyWasEnter = false;
             });
 
-            noteContentEl.addEventListener("paste", function(e) {
+            // ---------- Native Paste + Drag & Drop Images / Links ----------
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function isSafeUrl(url, allowDataImage = false) {
+                if (!url) return false;
+                const trimmed = String(url).trim();
+                if (/^(https?:|mailto:)/i.test(trimmed)) return true;
+                return allowDataImage && /^data:image\//i.test(trimmed);
+            }
+
+            function normalizeUrl(url) {
+                const value = String(url || '').trim();
+                if (!value) return '';
+                if (/^(https?:|mailto:)/i.test(value)) return value;
+                return `https://${value}`;
+            }
+
+            function buildResizableImageMarkup(src, alt = '') {
+                if (!isSafeUrl(src, true)) return '';
+                // New/pasted images start at a readable size instead of their full native dimensions.
+                // The image remains responsive and can still be resized with the handle.
+                return `
+                    <span class="img-resize-container" contenteditable="false" style="width:min(520px,100%);max-width:100%;">
+                        <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" style="width:100%;height:auto;">
+                        <span class="resize-handle"></span>
+                    </span>
+                `;
+            }
+
+            function insertHtmlAtRange(html, range) {
+                if (!html || !range) return;
+
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                noteContentEl.focus();
+
+                // Use the browser's editing command so inserted content participates in undo/redo.
+                const inserted = document.execCommand('insertHTML', false, html);
+
+                if (!inserted) {
+                    const fallbackRange = range.cloneRange();
+                    fallbackRange.deleteContents();
+                    const template = document.createElement('template');
+                    template.innerHTML = html;
+                    const fragment = template.content;
+                    const lastNode = fragment.lastChild;
+                    fallbackRange.insertNode(fragment);
+                    const caretRange = document.createRange();
+                    if (lastNode) caretRange.setStartAfter(lastNode);
+                    else caretRange.setStart(fallbackRange.endContainer, fallbackRange.endOffset);
+                    caretRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(caretRange);
+                }
+
+                saveCurrentSelection();
+                updateActiveNote();
+                noteContentEl.focus();
+            }
+
+            function insertHtmlAtSelection(html) {
+                if (!html) return;
+                restoreSelection();
+                const sel = window.getSelection();
+                if (!sel.rangeCount || !noteContentEl.contains(sel.anchorNode)) return;
+                insertHtmlAtRange(html, sel.getRangeAt(0).cloneRange());
+            }
+
+            function convertPlainTextToLinkedHtml(text) {
+                const escaped = escapeHtml(text);
+                const urlPattern = /((?:https?:\/\/|www\.)[^\s<]+)/gi;
+
+                const linked = escaped.replace(urlPattern, (rawUrl) => {
+                    const href = normalizeUrl(rawUrl);
+                    const trailingMatch = rawUrl.match(/[.,!?;:)\]]+$/);
+                    const trailing = trailingMatch ? trailingMatch[0] : '';
+                    const visible = trailing ? rawUrl.slice(0, -trailing.length) : rawUrl;
+                    const cleanHref = normalizeUrl(visible);
+
+                    return `<a href="${escapeHtml(cleanHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(visible)}</a>${escapeHtml(trailing)}`;
+                });
+
+                return linked.replace(/\r?\n/g, '<br>');
+            }
+
+            function sanitizePastedHtml(html) {
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = html;
+
+                wrapper.querySelectorAll('script, style, meta, link, iframe, object, embed, form').forEach(el => el.remove());
+
+                const allowedTags = new Set([
+                    'A','B','STRONG','I','EM','S','STRIKE','DEL',
+                    'H1','H2','H3','P','DIV','BR','BLOCKQUOTE',
+                    'UL','OL','LI','CODE','PRE','SPAN','IMG'
+                ]);
+
+                wrapper.querySelectorAll('*').forEach(el => {
+                    const tag = el.tagName.toUpperCase();
+
+                    [...el.attributes].forEach(attr => {
+                        const name = attr.name.toLowerCase();
+                        const isGlobalAllowed = name === 'title';
+                        const isLinkAllowed = tag === 'A' && name === 'href';
+                        const isImageAllowed = tag === 'IMG' && ['src','alt'].includes(name);
+
+                        if (name.startsWith('on') || !(isGlobalAllowed || isLinkAllowed || isImageAllowed)) {
+                            el.removeAttribute(attr.name);
+                        }
+                    });
+
+                    if (tag === 'A') {
+                        const href = el.getAttribute('href') || '';
+                        if (!isSafeUrl(href)) {
+                            el.replaceWith(...el.childNodes);
+                        } else {
+                            el.setAttribute('target', '_blank');
+                            el.setAttribute('rel', 'noopener noreferrer');
+                        }
+                    }
+
+                    if (tag === 'IMG') {
+                        const src = el.getAttribute('src') || '';
+                        if (!isSafeUrl(src, true)) {
+                            el.remove();
+                        } else {
+                            const replacement = document.createElement('template');
+                            replacement.innerHTML = buildResizableImageMarkup(src, el.getAttribute('alt') || '');
+                            el.replaceWith(replacement.content.cloneNode(true));
+                        }
+                    }
+
+                    if (!allowedTags.has(tag) && el.parentNode) {
+                        el.replaceWith(...el.childNodes);
+                    }
+                });
+
+                return wrapper.innerHTML;
+            }
+
+            function pasteClipboardContent(e) {
+                const clipboard = e.clipboardData || window.clipboardData;
+                if (!clipboard) return;
+
+                // Capture the caret/selection BEFORE preventDefault/focus changes.
+                // This guarantees pasted links/text land exactly where the user pasted them.
+                const sel = window.getSelection();
+                const pasteRange = (sel.rangeCount && noteContentEl.contains(sel.anchorNode))
+                    ? sel.getRangeAt(0).cloneRange()
+                    : null;
+
+                if (!pasteRange) return;
+                savedRange = pasteRange.cloneRange();
+
+                const imageItems = [...clipboard.items].filter(
+                    item => item.kind === 'file' && item.type && item.type.startsWith('image/')
+                );
+
+                // Direct image/screenshot paste.
+                if (imageItems.length > 0) {
+                    e.preventDefault();
+
+                    const files = imageItems.map(item => item.getAsFile()).filter(Boolean);
+                    let insertionRange = pasteRange.cloneRange();
+
+                    let chain = Promise.resolve();
+                    files.forEach(file => {
+                        chain = chain.then(() => new Promise(resolve => {
+                            const reader = new FileReader();
+                            reader.onload = event => {
+                                savedRange = insertionRange.cloneRange();
+                                insertImage(event.target.result, file.name);
+                                const currentSel = window.getSelection();
+                                if (currentSel.rangeCount) insertionRange = currentSel.getRangeAt(0).cloneRange();
+                                resolve();
+                            };
+                            reader.onerror = () => resolve();
+                            reader.readAsDataURL(file);
+                        }));
+                    });
+
+                    chain.finally(() => {
+                        noteContentEl.focus();
+                        setTimeout(enforceTypewriterScroll, 50);
+                    });
+                    return;
+                }
+
+                const html = clipboard.getData('text/html');
+                const text = clipboard.getData('text/plain');
+
+                if (html) {
+                    const cleanHtml = sanitizePastedHtml(html);
+                    if (cleanHtml.trim()) {
+                        e.preventDefault();
+                        insertHtmlAtRange(cleanHtml, pasteRange);
+                        setTimeout(enforceTypewriterScroll, 50);
+                        return;
+                    }
+                }
+
+                if (text) {
+                    e.preventDefault();
+                    insertHtmlAtRange(convertPlainTextToLinkedHtml(text), pasteRange);
+                    setTimeout(enforceTypewriterScroll, 50);
+                }
+            }
+
+            noteContentEl.addEventListener('paste', pasteClipboardContent);
+
+            let dragDepth = 0;
+
+            function getRangeFromPoint(x, y) {
+                if (document.caretRangeFromPoint) {
+                    return document.caretRangeFromPoint(x, y);
+                }
+
+                if (document.caretPositionFromPoint) {
+                    const pos = document.caretPositionFromPoint(x, y);
+                    if (pos) {
+                        const range = document.createRange();
+                        range.setStart(pos.offsetNode, pos.offset);
+                        range.collapse(true);
+                        return range;
+                    }
+                }
+
+                return null;
+            }
+
+            noteContentEl.addEventListener('dragenter', (e) => {
                 e.preventDefault();
-                const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-                document.execCommand('insertText', false, text);
-                setTimeout(enforceTypewriterScroll, 50); 
+                dragDepth++;
+                noteContentEl.classList.add('drop-active');
             });
 
-            init();
+            noteContentEl.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                noteContentEl.classList.add('drop-active');
+            });
+
+            noteContentEl.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dragDepth = Math.max(0, dragDepth - 1);
+                if (dragDepth === 0) noteContentEl.classList.remove('drop-active');
+            });
+
+            noteContentEl.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                dragDepth = 0;
+                noteContentEl.classList.remove('drop-active');
+
+                const dropRange = getRangeFromPoint(e.clientX, e.clientY);
+                if (dropRange && noteContentEl.contains(dropRange.commonAncestorContainer)) {
+                    savedRange = dropRange.cloneRange();
+                }
+
+                const files = [...(e.dataTransfer.files || [])];
+                const imageFiles = files.filter(file => file.type && file.type.startsWith('image/'));
+
+                if (imageFiles.length > 0) {
+                    let chain = Promise.resolve();
+                    imageFiles.forEach(file => {
+                        chain = chain.then(() => new Promise(resolve => {
+                            const reader = new FileReader();
+                            reader.onload = event => {
+                                insertImage(event.target.result, file.name);
+                                resolve();
+                            };
+                            reader.onerror = () => resolve();
+                            reader.readAsDataURL(file);
+                        }));
+                    });
+                    return;
+                }
+
+                const uriList = (e.dataTransfer.getData('text/uri-list') || '')
+                    .split(/\r?\n/)
+                    .find(url => /^https?:\/\//i.test(url.trim()));
+
+                const html = e.dataTransfer.getData('text/html');
+                const text = e.dataTransfer.getData('text/plain') || '';
+
+                if (uriList) {
+                    const label = text.trim() && text.trim() !== uriList.trim() ? text.trim() : uriList.trim();
+                    const linkHtml = `<a href="${escapeHtml(uriList.trim())}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+                    insertHtmlAtSelection(linkHtml);
+                    return;
+                }
+
+                if (html) {
+                    const cleanHtml = sanitizePastedHtml(html);
+                    if (cleanHtml.trim()) {
+                        insertHtmlAtSelection(cleanHtml);
+                        return;
+                    }
+                }
+
+                if (text.trim()) {
+                    insertHtmlAtSelection(convertPlainTextToLinkedHtml(text));
+                }
+            });
+
+
+            await init();
+            storageReady = true;
+            if (auth.currentUser) listenToCloud();
             updateToolbarState();
         });
     </script>
